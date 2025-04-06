@@ -1,0 +1,1 @@
+A web app that will receive and print alerts from tradingview. Download ngrok and run "ngrok http 5000" after running thing.py, then the webhook url will show. It will look something like this: https://20e5-173-64-122-231.ngrok-free.app. Add /webhook to the end of it and put it in tradingview. Also, take the same url and put it in the browser.

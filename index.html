@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TradingView Webhook Alerts</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Fade-in animation for new alerts */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .alert {
+            animation: fadeIn 0.5s ease-out;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex flex-col items-center p-6">
+    <div class="w-full max-w-3xl">
+        <h1 class="text-3xl font-bold text-gray-800 mb-6 text-center">TradingView Webhook Alerts</h1>
+        <div id="alerts" class="bg-white rounded-lg shadow-lg p-4 h-[500px] overflow-y-auto border border-gray-200">
+            <!-- Alerts will be appended here -->
+        </div>
+    </div>
+
+    <audio id="alertSound" src="https://www.soundjay.com/buttons/beep-01a.mp3" preload="auto"></audio>
+
+    <script>
+        const alertsDiv = document.getElementById('alerts');
+        const alertSound = document.getElementById('alertSound');
+
+        // Connect to SSE endpoint
+        const source = new EventSource('/alerts');
+        source.onmessage = function(event) {
+            const data = JSON.parse(event.data);
+            if (data.message) {
+                const alertElement = document.createElement('div');
+                alertElement.className = 'alert p-3 text-gray-700 border-b border-gray-100 hover:bg-gray-50 transition-colors duration-200';
+                alertElement.textContent = data.message;
+                alertsDiv.insertBefore(alertElement, alertsDiv.firstChild);  // Add at top
+                alertsDiv.scrollTop = 0;  // Scroll to top for newest alert
+
+                // Play sound
+                alertSound.play().catch(error => console.log("Audio play failed:", error));
+            }
+        };
+
+        source.onerror = function() {
+            console.log("SSE connection error");
+            const errorElement = document.createElement('div');
+            errorElement.className = 'alert p-3 text-red-600';
+            errorElement.textContent = 'Connection lost. Attempting to reconnect...';
+            alertsDiv.insertBefore(errorElement, alertsDiv.firstChild);
+        };
+    </script>
+</body>
+</html>
